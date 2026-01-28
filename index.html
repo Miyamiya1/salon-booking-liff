@@ -9,15 +9,11 @@
         body { font-family: sans-serif; background-color: #f3f4f6; padding: 10px; color: #333; }
         .container { max-width: 500px; margin: 0 auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         h1 { font-size: 18px; text-align: center; margin-bottom: 15px; }
-        
-        /* 凡例ボックス：ここを固定の「説明書」にします */
         .status-box { background-color: #fff9db; padding: 10px; border: 1px solid #fab005; border-radius: 4px; margin-bottom: 15px; font-size: 14px; }
         .status-title { font-weight: bold; color: #e67e22; margin-bottom: 5px; display: block; }
         .status-item { display: block; line-height: 1.5; font-size: 13px; }
-
         .calendar-container { position: relative; padding-bottom: 100%; height: 0; overflow: hidden; margin-bottom: 20px; border: 1px solid #ccc; }
         .calendar-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
         input, select, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 12px; background-color: #06c755; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
@@ -26,7 +22,6 @@
 <body>
     <div class="container">
         <h1>Soleil 予約リクエスト</h1>
-
         <div class="status-box">
             <span class="status-title">【予約状況の見方】</span>
             <span class="status-item">○：空きあり（すぐ予約可）</span>
@@ -34,12 +29,10 @@
             <span class="status-item">×：満員または受付終了</span>
             <p style="margin: 5px 0 0; color: #d35400; font-weight: bold;">※最新の状況は下のカレンダー内を確認！</p>
         </div>
-
         <label>営業カレンダー（○△×を確認）</label>
         <div class="calendar-container">
-            <iframe src="https://calendar.google.com/calendar/embed?src=myuctks%40gmail.com&ctz=Asia%2FTokyo" style="border: 0" frameborder="0" scrolling="no"></iframe>
+            <iframe src="https://calendar.google.com/calendar/embed?src=c_ca36762395d85208f8702951b142410a8c27931327170e7e4663a73c15553655%40group.calendar.google.com&ctz=Asia%2FTokyo" style="border: 0" frameborder="0" scrolling="no"></iframe>
         </div>
-
         <form id="booking-form">
             <label>お名前</label>
             <input type="text" id="name" placeholder="お名前を入力" required>
@@ -62,7 +55,6 @@
             <button type="submit">予約リクエストを送信</button>
         </form>
     </div>
-
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             liff.init({ liffId: "2008995683-C2OgB7lz" })
