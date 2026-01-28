@@ -6,9 +6,19 @@
     <title>Soleil 予約リクエスト</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f3f4f6; padding: 20px; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1 { font-size: 18px; text-align: center; margin-bottom: 20px; }
+        body { font-family: sans-serif; background-color: #f3f4f6; padding: 10px; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { font-size: 18px; text-align: center; margin-bottom: 15px; }
+        
+        /* 空き状況テンプレのスタイル */
+        .status-box { background-color: #fff9db; padding: 10px; border: 1px solid #fab005; border-radius: 4px; margin-bottom: 15px; font-size: 14px; }
+        .status-title { font-weight: bold; color: #e67e22; margin-bottom: 5px; display: block; }
+        .status-item { display: block; line-height: 1.6; }
+
+        /* カレンダーのレスポンシブ設定 */
+        .calendar-container { position: relative; padding-bottom: 75%; height: 0; overflow: hidden; margin-bottom: 20px; border: 1px solid #ccc; }
+        .calendar-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
         input, select, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 12px; background-color: #06c755; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
@@ -17,31 +27,41 @@
 </head>
 <body>
     <div class="container">
-        <h1>予約リクエスト</h1>
+        <h1>Soleil 予約リクエスト</h1>
+
+        <div class="status-box">
+            <span class="status-title">【本日の空き状況（目安）】</span>
+            <span class="status-item">10:00〜12:00　○（空きあり）</span>
+            <span class="status-item">14:00〜15:00　△（残り1名）</span>
+            <span class="status-item">17:00〜19:00　×（満員）</span>
+            <small style="color: #666; font-size: 11px;">※最新の状況は下のカレンダーをご確認ください</small>
+        </div>
+
+        <label>営業カレンダー</label>
+        <div class="calendar-container">
+            <iframe src="https://calendar.google.com/calendar/embed?src=ja.japanese%23holiday%40group.v.calendar.google.com&ctz=Asia%2FTokyo" style="border: 0" frameborder="0" scrolling="no"></iframe>
+        </div>
+
         <form id="booking-form">
             <label>お名前</label>
             <input type="text" id="name" placeholder="お名前を入力" required>
 
             <label>ご希望メニュー</label>
             <select id="menu" required>
-                <optgroup label="カット (シャンプーブロー込)">
+                <optgroup label="カット">
                     <option value="カット (¥5,500)">カット (¥5,500)</option>
                     <option value="前髪カット (¥1,100)">前髪カット (¥1,100)</option>
                 </optgroup>
-                <optgroup label="ヘアカラー (シャンプーブローなし)">
+                <optgroup label="ヘアカラー (+¥550適用)">
                     <option value="ベーシックカラー (¥6,050)">ベーシックカラー (¥6,050)</option>
-                    <option value="ダブルカラー (¥9,350〜)">ダブルカラー (¥9,350〜)</option>
                     <option value="白髪染 (¥6,050)">白髪染 (¥6,050)</option>
-                    <option value="イルミナカラー (¥7,150)">イルミナカラー (¥7,150)</option>
                     <option value="ヘナ ショート (¥10,450)">ヘナ ショート (¥10,450)</option>
                     <option value="ヘナ ミドル (¥11,550)">ヘナ ミドル (¥11,550)</option>
                     <option value="ヘナ ロング (¥12,100)">ヘナ ロング (¥12,100)</option>
                 </optgroup>
-                <optgroup label="パーマ・矯正 (シャンプーブロー込)">
+                <optgroup label="パーマ・矯正 (+¥550適用)">
                     <option value="ベーシックパーマ (¥12,100)">ベーシックパーマ (¥12,100)</option>
-                    <option value="デジタルパーマ (¥14,300)">デジタルパーマ (¥14,300)</option>
                     <option value="縮毛矯正 アイロン使用 (¥20,350)">縮毛矯正 アイロン使用 (¥20,350)</option>
-                    <option value="縮毛矯正 アイロン不使用 (¥20,350)">縮毛矯正 アイロン不使用 (¥20,350)</option>
                 </optgroup>
                 <optgroup label="トリートメント・他">
                     <option value="ベーシックトリートメント (¥3,300)">ベーシックトリートメント (¥3,300)</option>
@@ -53,7 +73,7 @@
             <input type="datetime-local" id="datetime" required>
 
             <label>備考・要望</label>
-            <textarea id="notes" rows="3" placeholder="ご要望があれば"></textarea>
+            <textarea id="notes" rows="2" placeholder="ご要望があれば入力してください"></textarea>
 
             <button type="submit">予約リクエストを送信</button>
         </form>
@@ -62,9 +82,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             liff.init({ liffId: "2008995683-C2OgB7lz" })
-                .then(() => {
-                    if (!liff.isLoggedIn()) { liff.login(); }
-                })
+                .then(() => { if (!liff.isLoggedIn()) { liff.login(); } })
                 .catch((err) => { console.log(err); });
         });
 
@@ -82,9 +100,7 @@
                     alert("送信しました！店舗からの返信をお待ちください。");
                     liff.closeWindow();
                 })
-                .catch((err) => {
-                    alert("送信に失敗しました。スマホのLINEアプリで開いてください。");
-                });
+                .catch((err) => { alert("送信に失敗しました。スマホのLINEアプリで開いてください。"); });
         });
     </script>
 </body>
