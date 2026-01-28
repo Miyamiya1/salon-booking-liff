@@ -3,79 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>予約リクエスト</title>
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <title>Soleil 予約リクエスト</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f5f5f5; }
-        .container { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; margin-top: 20px; background-color: #06C755; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        button:hover { background-color: #05b34c; }
+        body { font-family: sans-serif; background-color: #f3f4f6; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { font-size: 18px; text-align: center; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background-color: #06c755; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:active { background-color: #05a346; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>予約リクエスト</h2>
-        <form id="bookingForm">
-            <label for="name">お名前</label>
-            <input type="text" id="name" required placeholder="例: 山田 太郎">
+        <h1>予約リクエスト</h1>
+        <form id="booking-form">
+            <label>お名前</label>
+            <input type="text" id="name" placeholder="お名前を入力" required>
 
-            <label for="menu">ご希望メニュー</label>
-            <select id="menu">
-                <option value="カット">カット (60分)</option>
-                <option value="カラー">カラー (90分)</option>
-                <option value="カット＆カラー">カット＆カラー (120分)</option>
+            <label>ご希望メニュー</label>
+            <select id="menu" required>
+                <optgroup label="カット (シャンプーブロー込)">
+                    <option value="カット (¥5,500)">カット (¥5,500)</option>
+                    <option value="前髪カット (¥1,100)">前髪カット (¥1,100)</option>
+                </optgroup>
+                <optgroup label="ヘアカラー (シャンプーブローなし)">
+                    <option value="ベーシックカラー (¥6,050)">ベーシックカラー (¥6,050)</option>
+                    <option value="ダブルカラー (¥9,350〜)">ダブルカラー (¥9,350〜)</option>
+                    <option value="白髪染 (¥6,050)">白髪染 (¥6,050)</option>
+                    <option value="イルミナカラー (¥7,150)">イルミナカラー (¥7,150)</option>
+                    <option value="ヘナ ショート (¥10,450)">ヘナ ショート (¥10,450)</option>
+                    <option value="ヘナ ミドル (¥11,550)">ヘナ ミドル (¥11,550)</option>
+                    <option value="ヘナ ロング (¥12,100)">ヘナ ロング (¥12,100)</option>
+                </optgroup>
+                <optgroup label="パーマ・矯正 (シャンプーブロー込)">
+                    <option value="ベーシックパーマ (¥12,100)">ベーシックパーマ (¥12,100)</option>
+                    <option value="デジタルパーマ (¥14,300)">デジタルパーマ (¥14,300)</option>
+                    <option value="縮毛矯正 アイロン使用 (¥20,350)">縮毛矯正 アイロン使用 (¥20,350)</option>
+                    <option value="縮毛矯正 アイロン不使用 (¥20,350)">縮毛矯正 アイロン不使用 (¥20,350)</option>
+                </optgroup>
+                <optgroup label="トリートメント・他">
+                    <option value="ベーシックトリートメント (¥3,300)">ベーシックトリートメント (¥3,300)</option>
+                    <option value="ヘッドスパ (¥3,300)">ヘッドスパ (¥3,300)</option>
+                </optgroup>
             </select>
 
-            <label for="datetime">ご希望日時</label>
+            <label>ご希望日時</label>
             <input type="datetime-local" id="datetime" required>
 
-            <label for="remarks">備考・要望</label>
-            <textarea id="remarks" rows="3" placeholder="ご要望があれば"></textarea>
+            <label>備考・要望</label>
+            <textarea id="notes" rows="3" placeholder="ご要望があれば"></textarea>
 
-            <button type="submit" id="submitBtn">予約リクエストを送信</button>
+            <button type="submit">予約リクエストを送信</button>
         </form>
     </div>
 
     <script>
-        // 1. LIFFの初期化
         document.addEventListener("DOMContentLoaded", function() {
-            // ※ここで実際のLIFF IDを設定します（後述の手順で取得）
             liff.init({ liffId: "2008995683-C2OgB7lz" })
                 .then(() => {
-                    if (!liff.isLoggedIn()) {
-                        liff.login();
-                    }
+                    if (!liff.isLoggedIn()) { liff.login(); }
                 })
-                .catch((err) => {
-                    console.log(err);
-                });
+                .catch((err) => { console.log(err); });
         });
 
-        // 2. 送信ボタンの処理
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        document.getElementById("booking-form").addEventListener("submit", function(e) {
             e.preventDefault();
-            
-            const name = document.getElementById('name').value;
-            const menu = document.getElementById('menu').value;
-            const datetime = document.getElementById('datetime').value;
-            const remarks = document.getElementById('remarks').value;
+            const name = document.getElementById("name").value;
+            const menu = document.getElementById("menu").value;
+            const rawDate = document.getElementById("datetime").value;
+            const date = rawDate.replace('T', ' '); 
+            const notes = document.getElementById("notes").value;
+            const message = `【予約リクエスト】\n名前: ${name}\nメニュー: ${menu}\n日時: ${date}\n備考: ${notes}`;
 
-            // 送信するメッセージを作成
-            const messageText = `【予約リクエスト】\n名前: ${name}\nメニュー: ${menu}\n日時: ${datetime}\n備考: ${remarks}`;
-
-            // 3. トーク画面にメッセージとして送信
-            liff.sendMessages([{
-                type: 'text',
-                text: messageText
-            }]).then(() => {
-                window.alert('予約リクエストを送信しました');
-                liff.closeWindow(); // ウィンドウを閉じる
-            }).catch((error) => {
-                window.alert('送信に失敗しました: ' + error);
-            });
+            liff.sendMessages([{ type: 'text', text: message }])
+                .then(() => {
+                    alert("送信しました！店舗からの返信をお待ちください。");
+                    liff.closeWindow();
+                })
+                .catch((err) => {
+                    alert("送信に失敗しました。スマホのLINEアプリで開いてください。");
+                });
         });
     </script>
 </body>
