@@ -1,122 +1,55 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soleil 予約リクエスト</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <style>
-        body { font-family: sans-serif; background-color: #f3f4f6; padding: 10px; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1 { font-size: 18px; text-align: center; margin-bottom: 15px; }
-        
-        /* 案内ボックス */
-        .status-box { background-color: #fff9db; padding: 10px; border: 1px solid #fab005; border-radius: 4px; margin-bottom: 15px; font-size: 14px; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .info-label { font-weight: bold; color: #d35400; }
-        .status-item { display: block; line-height: 1.5; font-size: 13px; margin-top: 5px; }
-
-        .calendar-container { position: relative; padding-bottom: 100%; height: 0; overflow: hidden; margin-bottom: 20px; border: 1px solid #ccc; }
-        .calendar-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        
-        .time-restriction { background-color: #eef2ff; padding: 8px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #4f46e5; }
-        .time-notice { font-size: 13px; color: #1e3a8a; line-height: 1.4; }
-        
-        button { width: 100%; padding: 12px; background-color: #06c755; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    </style>
-</head>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Soleil予約</title>
+<style>
+body{font-family:sans-serif;padding:20px;background:#F5EFE6}
+label{display:block;margin-top:16px;font-weight:bold}
+select,input{width:100%;padding:10px;margin-top:6px;font-size:16px}
+button{margin-top:24px;width:100%;padding:14px;background:#8C7A6B;color:#fff;border:none;border-radius:8px;font-size:16px}
+</style></head>
 <body>
-    <div class="container">
-        <h1>Soleil 予約リクエスト</h1>
+<h2>ご予約</h2>
+<label>日付</label><input type="date" id="date">
+<label>時間</label>
+<select id="time"></select>
+<label>メニュー</label>
+<select id="menu">
+<option>カット</option>
+<option>カットトリートメント</option>
+<option>カットカラー</option>
+<option>カット香草カラー</option>
+<option>カットヘナ</option>
+<option>カラー</option>
+<option>香草カラー</option>
+<option>ヘナ</option>
+<option>ハイライト</option>
+<option>カットパーマ</option>
+<option>カットデジタルパーマ</option>
+<option>カットストレートパーマ</option>
+<option>カット縮毛矯正</option>
+<option>トリートメント</option>
+<option>ヘッドスパ</option>
+</select>
+<script>
+var ts=document.getElementById('time');
+for(var h=10;h<=19;h++){for(var m=0;m<60;m+=30){
+  var s=(h<10?'0':'')+h+':'+(m===0?'00':m);
+  var o=document.createElement('option');o.text=s;ts.add(o);
+}}
+</script>
+<button onclick="submitForm()">この内容で送信</button>
 
-        <div class="status-box">
-            <div class="info-row">
-                <span class="info-label">営業時間</span>
-                <span>10:00 〜 20:00</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">予約可能時間</span>
-                <span style="font-weight: bold; color: #e74c3c;">10:00 〜 19:00</span>
-            </div>
-            <span class="status-item">○：空きあり / △：残りわずか / ×：満員</span>
-        </div>
-
-        <label>営業カレンダー（空き状況を確認）</label>
-        <div class="calendar-container">
-            <iframe src="https://calendar.google.com/calendar/embed?src=c_ca36762395d85208f8702951b142410a8c27931327170e7e4663a73c15553655%40group.calendar.google.com&ctz=Asia%2FTokyo&mode=WEEK&showNav=1&showPrint=0&showTabs=0&showCalendars=0" style="border: 0" frameborder="0" scrolling="no"></iframe>
-        </div>
-
-        <form id="booking-form">
-            <label>お名前</label>
-            <input type="text" id="name" placeholder="お名前を入力" required>
-
-            <label>ご希望メニュー</label>
-            <select id="menu" required>
-                <option value="カット (60分) ¥5,500">カット (60分) ¥5,500</option>
-                <option value="カット＋カラー (120分) ¥11,550">カット＋カラー (120分) ¥11,550</option>
-                <option value="カット＋パーマ (120分) ¥17,600">カット＋パーマ (120分) ¥17,600</option>
-                <option value="カット＋パーマ＋カラー (180分) ¥23,650">カット＋パーマ＋カラー (180分) ¥23,650</option>
-                <option value="カット＋ストレートパーマ (180分) ¥25,850">カット＋ストレートパーマ (180分) ¥25,850</option>
-                <option value="カット＋ヘナ (120分) ¥15,950">カット＋ヘナ (120分) ¥15,950</option>
-                <option value="カット＋トリートメント (60分) ¥8,800">カット＋トリートメント (60分) ¥8,800</option>
-                <option value="シャンプーブロー (30分) ¥2,200">シャンプーブロー (30分) ¥2,200</option>
-                <option value="前髪カット (5分) ¥1,100">前髪カット (5分) ¥1,100</option>
-            </select>
-
-            <div class="time-restriction">
-                <div class="time-notice">
-                    <strong>最終受付は19:00までとなります。</strong><br>
-                    ※10:00以前、19:00以降の選択は送信できません。
-                </div>
-            </div>
-
-            <label>ご希望日時</label>
-            <input type="datetime-local" id="datetime" required>
-
-            <label>備考・要望</label>
-            <textarea id="notes" rows="2" placeholder="ご要望があれば入力してください"></textarea>
-
-            <button type="submit">予約リクエストを送信</button>
-        </form>
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            liff.init({ liffId: "2008995683-C2OgB7lz" })
-                .then(() => { if (!liff.isLoggedIn()) { liff.login(); } })
-                .catch((err) => { console.log(err); });
-        });
-
-        document.getElementById("booking-form").addEventListener("submit", function(e) {
-            e.preventDefault();
-            
-            const rawDate = document.getElementById("datetime").value;
-            const dateObj = new Date(rawDate);
-            const hour = dateObj.getHours();
-
-            // 予約可能時間チェック (10時〜19時) 
-            // 19:00ちょうどまではOK, 19:01以降は不可
-            if (hour < 10 || hour >= 19) {
-                alert("申し訳ございません。予約可能時間は 10:00〜19:00 となっております。日時を修正してください。");
-                return;
-            }
-
-            const name = document.getElementById("name").value;
-            const menu = document.getElementById("menu").value;
-            const dateStr = rawDate.replace('T', ' '); 
-            const notes = document.getElementById("notes").value;
-            const message = `【予約リクエスト】\n名前: ${name}\nメニュー: ${menu}\n日時: ${dateStr}\n備考: ${notes}`;
-
-            liff.sendMessages([{ type: 'text', text: message }])
-                .then(() => {
-                    alert("送信しました！店舗からの返信をお待ちください。");
-                    liff.closeWindow();
-                })
-                .catch((err) => { alert("送信に失敗しました。スマホのLINEで操作してください。"); });
-        });
-    </script>
-</body>
-</html>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+liff.init({ liffId: "YOUR_LIFF_ID" });
+function submitForm(){
+  var d=document.getElementById('date').value;
+  var t=document.getElementById('time').value;
+  var m=document.getElementById('menu').value;
+  if(!d){alert('日付を選択してください');return;}
+  var text = "【予約希望】\n日付："+d+"\n時間："+t+"\nメニュー："+m;
+  liff.sendMessages([{type:"text",text:text}]).then(()=>liff.closeWindow());
+}
+</script>
+</body></html>
