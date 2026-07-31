@@ -17,6 +17,7 @@ button{margin-top:24px;width:100%;padding:14px;background:#8C7A6B;color:#fff;bor
 
 <label>お名前</label><input type="text" id="name" placeholder="例：山田花子">
 <label>日付</label><input type="date" id="date">
+<div id="dayLabel" style="margin-top:6px;font-weight:bold"></div>
 <label>時間</label>
 <select id="time"></select>
 <label>メニュー</label>
@@ -48,12 +49,19 @@ for(var h=10;h<=19;h++){for(var m=0;m<60;m+=30){
   var s=(h<10?'0':'')+h+':'+(m===0?'00':m);
   var o=document.createElement('option');o.text=s;ts.add(o);
 }}
+var youbi=['日','月','火','水','木','金','土'];
+var closedDates=['2026-08-19','2026-08-20','2026-08-21']; // 夏季休暇など臨時休業日
 document.getElementById('date').addEventListener('change', function(){
-  if(!this.value) return;
+  var label=document.getElementById('dayLabel');
+  if(!this.value){label.textContent='';return;}
   var day = new Date(this.value+'T00:00:00').getDay(); // 0=日,1=月,2=火
-  if(day===1 || day===2){
-    alert('月曜日・火曜日は定休日です。他の日をお選びください。');
+  if(day===1 || day===2 || closedDates.indexOf(this.value)!==-1){
+    label.style.color='#c00';
+    label.textContent='('+youbi[day]+') 定休日・休業日です。他の日をお選びください。';
     this.value='';
+  } else {
+    label.style.color='#333';
+    label.textContent='('+youbi[day]+')';
   }
 });
 </script>
@@ -73,7 +81,7 @@ function submitForm(){
   if(!n){alert('お名前を入力してください');return;}
   if(!d){alert('日付を選択してください');return;}
   var day = new Date(d+'T00:00:00').getDay();
-  if(day===1 || day===2){alert('月曜日・火曜日は定休日です。他の日をお選びください。');return;}
+  if(day===1 || day===2 || closedDates.indexOf(d)!==-1){alert('定休日・休業日です。他の日をお選びください。');return;}
   if(!agree){alert('プライバシーポリシーと利用規約への同意が必要です');return;}
   var text = "【予約希望】\nお名前："+n+"\n日付："+d+"\n時間："+t+"\nメニュー："+m;
   liff.sendMessages([{type:"text",text:text}]).then(()=>liff.closeWindow());
