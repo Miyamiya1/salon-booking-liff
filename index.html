@@ -48,6 +48,14 @@ for(var h=10;h<=19;h++){for(var m=0;m<60;m+=30){
   var s=(h<10?'0':'')+h+':'+(m===0?'00':m);
   var o=document.createElement('option');o.text=s;ts.add(o);
 }}
+document.getElementById('date').addEventListener('change', function(){
+  if(!this.value) return;
+  var day = new Date(this.value+'T00:00:00').getDay(); // 0=日,1=月,2=火
+  if(day===1 || day===2){
+    alert('月曜日・火曜日は定休日です。他の日をお選びください。');
+    this.value='';
+  }
+});
 </script>
 <button onclick="submitForm()">この内容で送信</button>
 
@@ -64,6 +72,8 @@ function submitForm(){
   var agree=document.getElementById('agree').checked;
   if(!n){alert('お名前を入力してください');return;}
   if(!d){alert('日付を選択してください');return;}
+  var day = new Date(d+'T00:00:00').getDay();
+  if(day===1 || day===2){alert('月曜日・火曜日は定休日です。他の日をお選びください。');return;}
   if(!agree){alert('プライバシーポリシーと利用規約への同意が必要です');return;}
   var text = "【予約希望】\nお名前："+n+"\n日付："+d+"\n時間："+t+"\nメニュー："+m;
   liff.sendMessages([{type:"text",text:text}]).then(()=>liff.closeWindow());
