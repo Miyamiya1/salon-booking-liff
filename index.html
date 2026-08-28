@@ -5,19 +5,14 @@
 <style>
 body{font-family:sans-serif;padding:20px;background:#F5EFE6}
 label{display:block;margin-top:16px;font-weight:bold}
-select,input[type=date],input[type=text]{width:100%;padding:10px;margin-top:6px;font-size:16px;box-sizing:border-box}
+select,input{width:100%;padding:10px;margin-top:6px;font-size:16px}
 button{margin-top:24px;width:100%;padding:14px;background:#8C7A6B;color:#fff;border:none;border-radius:8px;font-size:16px}
-.agree{margin-top:20px;font-size:14px}
-.links{margin-top:14px;font-size:13px;text-align:center}
-.links a{color:#8C7A6B}
 </style></head>
 <body>
 <h2>ご予約</h2>
 <p style="color:#a33;font-weight:bold">毎週月曜火曜定休日<br>夏季休暇・冬季休暇は事前にお知らせします。</p>
-
-<label>お名前</label><input type="text" id="name" placeholder="例：山田花子">
-<label>日付</label><input type="date" id="date">
-<div id="dayLabel" style="margin-top:6px;font-weight:bold"></div>
+<iframe src="https://calendar.google.com/calendar/embed?src=hdusoleil08@gmail.com&ctz=Asia%2FTokyo" style="width:100%;height:300px;border:0"></iframe>
+<label>日付</label><input type="date" id="date" onchange="loadTimes()">
 <label>時間</label>
 <select id="time"></select>
 <label>メニュー</label>
@@ -38,52 +33,48 @@ button{margin-top:24px;width:100%;padding:14px;background:#8C7A6B;color:#fff;bor
 <option>トリートメント</option>
 <option>ヘッドスパ</option>
 </select>
-
-<div class="agree">
-<label style="font-weight:normal"><input type="checkbox" id="agree" style="width:auto;display:inline"> <a href="privacy.html" target="_blank">プライバシーポリシー</a>と<a href="terms.html" target="_blank">利用規約</a>に同意する</label>
-</div>
-
-<script>
-var ts=document.getElementById('time');
-for(var h=10;h<=19;h++){for(var m=0;m<60;m+=30){
-  var s=(h<10?'0':'')+h+':'+(m===0?'00':m);
-  var o=document.createElement('option');o.text=s;ts.add(o);
-}}
-var youbi=['日','月','火','水','木','金','土'];
-var closedDates=['2026-08-19','2026-08-20','2026-08-21']; // 夏季休暇など臨時休業日
-document.getElementById('date').addEventListener('change', function(){
-  var label=document.getElementById('dayLabel');
-  if(!this.value){label.textContent='';return;}
-  var day = new Date(this.value+'T00:00:00').getDay(); // 0=日,1=月,2=火
-  if(day===1 || day===2 || closedDates.indexOf(this.value)!==-1){
-    label.style.color='#c00';
-    label.textContent='('+youbi[day]+') 定休日・休業日です。他の日をお選びください。';
-    this.value='';
-  } else {
-    label.style.color='#333';
-    label.textContent='('+youbi[day]+')';
-  }
-});
-</script>
 <button onclick="submitForm()">この内容で送信</button>
-
-<div class="links"><a href="privacy.html">プライバシーポリシー</a>　|　<a href="terms.html">利用規約</a></div>
-
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
+var BOOKED_API = "https://script.google.com/macros/s/AKfycbzWGHXaIcR2XGaOemsQ5IG0VXTrk4HW_43k0ezE_9bdzpXoKpVBKeExz2prXIBZEyOtUA/exec";
+function allSlots(){
+  var slots=[];
+  for(var h=10;h<=19;h++){for(var m=0;m<60;m+=30){
+    slots.push((h<10?'0':'')+h+':'+(m===0?'00':m));
+  }}
+  return slots;
+}
+function loadTimes(){
+  var d=document.getElementById('date').value;
+  var ts=document.getElementById('time');
+  ts.innerHTML="";
+  if(!d) return;
+  fetch(BOOKED_API+"?date="+d)
+    .then(function(r){return r.json();})
+    .then(function(booked){
+      allSlots().forEach(function(s){
+        if(booked.indexOf(s)===-1){
+          var o=document.createElement('option');o.text=s;ts.add(o);
+        }
+      });
+      if(ts.options.length===0){
+        var o=document.createElement('option');o.text="満席";ts.add(o);
+      }
+    })
+    .catch(function(){
+      allSlots().forEach(function(s){
+        var o=document.createElement('option');o.text=s;ts.add(o);
+      });
+    });
+}
 liff.init({ liffId: "2010592990-mC1LaHF6" });
 function submitForm(){
-  var n=document.getElementById('name').value;
   var d=document.getElementById('date').value;
   var t=document.getElementById('time').value;
   var m=document.getElementById('menu').value;
-  var agree=document.getElementById('agree').checked;
-  if(!n){alert('お名前を入力してください');return;}
   if(!d){alert('日付を選択してください');return;}
-  var day = new Date(d+'T00:00:00').getDay();
-  if(day===1 || day===2 || closedDates.indexOf(d)!==-1){alert('定休日・休業日です。他の日をお選びください。');return;}
-  if(!agree){alert('プライバシーポリシーと利用規約への同意が必要です');return;}
-  var text = "【予約希望】\nお名前："+n+"\n日付："+d+"\n時間："+t+"\nメニュー："+m;
+  if(t==="満席"){alert('その日は満席です。別の日をお選びください');return;}
+  var text = "【予約希望】\n日付："+d+"\n時間："+t+"\nメニュー："+m;
   liff.sendMessages([{type:"text",text:text}]).then(()=>liff.closeWindow());
 }
 </script>
