@@ -7,14 +7,18 @@ body{font-family:sans-serif;padding:20px;background:#F5EFE6}
 label{display:block;margin-top:16px;font-weight:bold}
 select,input{width:100%;padding:10px;margin-top:6px;font-size:16px}
 button{margin-top:24px;width:100%;padding:14px;background:#8C7A6B;color:#fff;border:none;border-radius:8px;font-size:16px}
+#timeList{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.time-btn{flex:0 0 22%;padding:10px 0;text-align:center;border:1px solid #ccc;border-radius:6px;background:#fff;font-size:14px}
+.time-btn.selected{background:#8C7A6B;color:#fff;border-color:#8C7A6B}
 </style></head>
 <body>
 <h2>ご予約</h2>
 <p style="color:#a33;font-weight:bold">毎週月曜火曜定休日<br>夏季休暇・冬季休暇は事前にお知らせします。</p>
-<iframe src="https://calendar.google.com/calendar/embed?src=guishigongnei687@gmail.com&ctz=Asia%2FTokyo" style="width:100%;height:300px;border:0"></iframe>
+<iframe src="https://calendar.google.com/calendar/embed?src=hdusoleil08@gmail.com&ctz=Asia%2FTokyo" style="width:100%;height:300px;border:0"></iframe>
 <label>日付</label><input type="date" id="date" onchange="loadTimes()">
 <label>時間</label>
-<select id="time"></select>
+<div id="timeList"></div>
+<input type="hidden" id="time">
 <label>メニュー</label>
 <select id="menu">
 <option>カット</option>
@@ -44,27 +48,35 @@ function allSlots(){
   }}
   return slots;
 }
+function selectTime(s, isBooked, btn){
+  if(isBooked){
+    alert('その時間はご予約いただけません。別の時間をお選びください。');
+    return;
+  }
+  document.getElementById('time').value = s;
+  document.querySelectorAll('.time-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+}
+function renderTimes(booked){
+  var list=document.getElementById('timeList');
+  list.innerHTML="";
+  allSlots().forEach(function(s){
+    var isBooked = booked.indexOf(s)!==-1;
+    var btn=document.createElement('div');
+    btn.className='time-btn';
+    btn.textContent=s;
+    btn.onclick=function(){ selectTime(s, isBooked, btn); };
+    list.appendChild(btn);
+  });
+}
 function loadTimes(){
   var d=document.getElementById('date').value;
-  var ts=document.getElementById('time');
-  ts.innerHTML="";
-  if(!d) return;
+  document.getElementById('time').value="";
+  if(!d){ document.getElementById('timeList').innerHTML=""; return; }
   fetch(BOOKED_API+"?date="+d)
     .then(function(r){return r.json();})
-    .then(function(booked){
-      allSlots().forEach(function(s){
-        var o=document.createElement('option');
-        o.value=s;
-        o.text=s;
-        if(booked.indexOf(s)!==-1){ o.disabled=true; }
-        ts.add(o);
-      });
-    })
-    .catch(function(){
-      allSlots().forEach(function(s){
-        var o=document.createElement('option');o.value=s;o.text=s;ts.add(o);
-      });
-    });
+    .then(function(booked){ renderTimes(booked); })
+    .catch(function(){ renderTimes([]); });
 }
 liff.init({ liffId: "2010592990-mC1LaHF6" });
 function submitForm(){
