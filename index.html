@@ -79,7 +79,19 @@ function loadTimes(){
     .then(function(booked){ renderTimes(booked); })
     .catch(function(){ renderTimes([]); });
 }
-liff.init({ liffId: "2010592990-mC1LaHF6" });
+// 予約リマインドGASのURL（空なら保存せず送信だけ）
+var SAVE_API = "https://script.google.com/macros/s/AKfycbzrBb37nBb9ujZmiyWqa-_Yh5fQm0muE-0epWI89LipzqiYP_nmJPf3IJoUTGlMa-Qr/exec";
+var liffReady = liff.init({ liffId: "2010592990-mC1LaHF6" });
+function saveBooking(d,t,m){
+  if(!SAVE_API) return Promise.resolve();
+  return liffReady
+    .then(function(){ return liff.getProfile(); })
+    .then(function(p){
+      return fetch(SAVE_API,{method:"POST",mode:"no-cors",
+        body:JSON.stringify({date:d,time:t,menu:m,userId:p.userId,name:p.displayName})});
+    })
+    .catch(function(){});
+}
 function submitForm(){
   var d=document.getElementById('date').value;
   var t=document.getElementById('time').value;
@@ -87,7 +99,9 @@ function submitForm(){
   if(!d){alert('日付を選択してください');return;}
   if(!t){alert('ご希望の時間を選択してください');return;}
   var text = "【予約希望】\n日付："+d+"\n時間："+t+"\nメニュー："+m;
-  liff.sendMessages([{type:"text",text:text}]).then(()=>liff.closeWindow());
+  saveBooking(d,t,m)
+    .then(function(){ return liff.sendMessages([{type:"text",text:text}]); })
+    .then(()=>liff.closeWindow());
 }
 </script>
 </body></html>
