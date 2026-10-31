@@ -80,7 +80,7 @@ function loadTimes(){
     .catch(function(){ renderTimes([]); });
 }
 // 予約リマインドGASのURL（空なら保存せず送信だけ）
-var SAVE_API = "";
+var SAVE_API = "https://script.google.com/macros/s/AKfycbzrBb37nBb9ujZmiyWqa-_Yh5fQm0muE-0epWI89LipzqiYP_nmJPf3IJoUTGlMa-Qr/exec";
 var liffReady = liff.init({ liffId: "2010592990-mC1LaHF6" });
 function saveBooking(d,t,m){
   if(!SAVE_API) return Promise.resolve();
