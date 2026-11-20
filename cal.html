@@ -8,6 +8,8 @@ body{font-family:sans-serif;padding:20px;background:#F5EFE6;color:#333;max-width
 .big{font-size:20px;font-weight:bold}
 a.btn,button{display:block;box-sizing:border-box;width:100%;margin-top:14px;padding:14px;background:#8C7A6B;color:#fff;border:none;border-radius:8px;font-size:16px;text-align:center;text-decoration:none}
 a.btn.g{background:#4a7bd0}
+a.btn.main{font-size:20px;padding:18px;background:#8C7A6B}
+a.btn.sub{background:none;color:#8C7A6B;font-size:13px;text-decoration:underline;padding:6px}
 label{display:block;margin-top:12px;font-weight:bold}
 input,select,textarea{width:100%;box-sizing:border-box;padding:10px;margin-top:6px;font-size:16px}
 .note{font-size:13px;color:#777}
@@ -20,8 +22,8 @@ input,select,textarea{width:100%;box-sizing:border-box;padding:10px;margin-top:6
     <div id="gMenu" style="margin-top:6px"></div>
     <div class="note" style="margin-top:6px">美容室SOLEIL（横浜市西区浜松町8-26）</div>
   </div>
-  <a class="btn" href="#" id="apple">iPhoneのカレンダーに追加</a>
-  <a class="btn g" href="#" id="google" target="_blank" rel="noopener">Googleカレンダーに追加（Android）</a>
+<div id="btns"><a class="btn" href="#" id="apple">iPhoneのカレンダーに追加</a>
+  <a class="btn g" href="#" id="google" target="_blank" rel="noopener">Googleカレンダーに追加（Android）</a></div>
   <p class="note">前日に通知が届くよう設定されます（Googleカレンダーは通知設定に従います）。<br>変更・キャンセルはLINEでご連絡ください。☎045-350-3810</p>
 </div>
 
@@ -71,6 +73,12 @@ if(q.get('d')&&q.get('t')){
   document.getElementById('google').href='https://calendar.google.com/calendar/render?action=TEMPLATE'+
     '&text='+encodeURIComponent(title)+'&dates='+fmt(s)+'/'+fmt(e)+'&ctz=Asia/Tokyo'+
     '&location='+encodeURIComponent(LOC)+'&details='+encodeURIComponent(desc);
+  var ap=document.getElementById('apple'),gg=document.getElementById('google');
+  var isAndroid=/Android/i.test(navigator.userAgent);
+  var main=isAndroid?gg:ap,sub=isAndroid?ap:gg;
+  main.className='btn main';main.textContent='📅 カレンダーに追加';
+  sub.className='btn sub';sub.textContent=isAndroid?'iPhoneの方はこちら':'Googleカレンダーをお使いの方はこちら';
+  document.getElementById('btns').insertBefore(main,sub);
 }else{
   document.getElementById('owner').hidden=false;
   var sel=document.getElementById('oMenu');
