@@ -47,6 +47,7 @@ var LOC="美容室SOLEIL 神奈川県横浜市西区浜松町8-26 ベルウッ�
 var W="日月火水木金土";
 var q=new URLSearchParams(location.search);
 function pad(n){return (n<10?'0':'')+n;}
+function utc(dt){return dt.toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';}
 function fmt(dt){return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+'T'+pad(dt.getHours())+pad(dt.getMinutes())+'00';}
 
 if(q.get('d')&&q.get('t')){
@@ -62,14 +63,13 @@ if(q.get('d')&&q.get('t')){
   var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SOLEIL//JP','BEGIN:VEVENT',
     'UID:'+fmt(s)+'-'+Math.random().toString(36).slice(2)+'@hdu-soleil.jp',
     'DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',
-    'DTSTART;TZID=Asia/Tokyo:'+fmt(s),'DTEND;TZID=Asia/Tokyo:'+fmt(e),
+    'DTSTART:'+utc(s),'DTEND:'+utc(e),
     'SUMMARY:'+title,'LOCATION:'+LOC.replace(/,/g,'\\,'),'DESCRIPTION:'+desc,
     'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+title,'TRIGGER:-P1D','END:VALARM',
     'END:VEVENT','END:VCALENDAR'].join('\r\n');
-  document.getElementById('apple').onclick=function(ev){
-    ev.preventDefault();
-    location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
-  };
+  var apl=document.getElementById('apple');
+  apl.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
+  apl.setAttribute('download','soleil.ics');apl.target='_blank';
   document.getElementById('google').href='https://calendar.google.com/calendar/render?action=TEMPLATE'+
     '&text='+encodeURIComponent(title)+'&dates='+fmt(s)+'/'+fmt(e)+'&ctz=Asia/Tokyo'+
     '&location='+encodeURIComponent(LOC)+'&details='+encodeURIComponent(desc);
