@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOLEIL ご予約をカレンダーに追加</title>
+<style>
+body{font-family:sans-serif;padding:20px;background:#F5EFE6;color:#333;max-width:480px;margin:auto}
+.card{background:#fff;border-radius:10px;padding:16px;margin-top:12px}
+.big{font-size:20px;font-weight:bold}
+a.btn,button{display:block;box-sizing:border-box;width:100%;margin-top:14px;padding:14px;background:#8C7A6B;color:#fff;border:none;border-radius:8px;font-size:16px;text-align:center;text-decoration:none}
+a.btn.g{background:#4a7bd0}
+label{display:block;margin-top:12px;font-weight:bold}
+input,select,textarea{width:100%;box-sizing:border-box;padding:10px;margin-top:6px;font-size:16px}
+.note{font-size:13px;color:#777}
+</style></head>
+<body>
+<div id="guest" hidden>
+  <h2>ご予約ありがとうございます</h2>
+  <div class="card">
+    <div class="big" id="gWhen"></div>
+    <div id="gMenu" style="margin-top:6px"></div>
+    <div class="note" style="margin-top:6px">美容室SOLEIL（横浜市西区浜松町8-26）</div>
+  </div>
+  <a class="btn" href="#" id="apple">iPhoneのカレンダーに追加</a>
+  <a class="btn g" href="#" id="google" target="_blank" rel="noopener">Googleカレンダーに追加（Android）</a>
+  <p class="note">前日に通知が届くよう設定されます（Googleカレンダーは通知設定に従います）。<br>変更・キャンセルはLINEでご連絡ください。☎045-350-3810</p>
+</div>
+
+<div id="owner" hidden>
+  <h2>カレンダーリンク作成</h2>
+  <label>お名前（任意・LINE文面用）</label><input id="oName" placeholder="山田">
+  <label>日付</label><input type="date" id="oDate">
+  <label>時間</label><input type="time" id="oTime" step="1800" value="10:00">
+  <label>メニュー</label>
+  <select id="oMenu"></select>
+  <label>所要時間（分）</label><input type="number" id="oMin" step="30" value="60">
+  <button onclick="make()">LINE用の文面を作る</button>
+  <textarea id="oOut" rows="7" style="margin-top:12px" readonly></textarea>
+  <button onclick="copyOut()">文面をコピー</button>
+  <p class="note" id="oMsg"></p>
+</div>
+
+<script>
+var MENUS={"カット":60,"カットトリートメント":90,"カットカラー":120,"カット香草カラー":120,"カットヘナ":120,"カラー":90,"香草カラー":90,"ヘナ":90,"ハイライト":120,"カットパーマ":150,"カットデジタルパーマ":180,"カットストレートパーマ":150,"カット縮毛矯正":180,"トリートメント":60,"ヘッドスパ":60};
+var LOC="美容室SOLEIL 神奈川県横浜市西区浜松町8-26 ベルウット";
+var W="日月火水木金土";
+var q=new URLSearchParams(location.search);
+function pad(n){return (n<10?'0':'')+n;}
+function fmt(dt){return dt.getFullYear()+pad(dt.getMonth()+1)+pad(dt.getDate())+'T'+pad(dt.getHours())+pad(dt.getMinutes())+'00';}
+
+if(q.get('d')&&q.get('t')){
+  var d=q.get('d'),t=q.get('t'),m=q.get('m')||'ご予約',min=parseInt(q.get('h'))||60;
+  var p=d.split('-'),tm=t.split(':');
+  var s=new Date(+p[0],+p[1]-1,+p[2],+tm[0],+tm[1]);
+  var e=new Date(s.getTime()+min*60000);
+  document.getElementById('guest').hidden=false;
+  document.getElementById('gWhen').textContent=(s.getMonth()+1)+'月'+s.getDate()+'日('+W[s.getDay()]+') '+t+'〜';
+  document.getElementById('gMenu').textContent='メニュー：'+m;
+  var title='美容室SOLEIL（'+m+'）';
+  var desc='ご予約ありがとうございます。変更・キャンセルはLINEでご連絡ください。TEL 045-350-3810';
+  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SOLEIL//JP','BEGIN:VEVENT',
+    'UID:'+fmt(s)+'-'+Math.random().toString(36).slice(2)+'@hdu-soleil.jp',
+    'DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',
+    'DTSTART;TZID=Asia/Tokyo:'+fmt(s),'DTEND;TZID=Asia/Tokyo:'+fmt(e),
+    'SUMMARY:'+title,'LOCATION:'+LOC.replace(/,/g,'\\,'),'DESCRIPTION:'+desc,
+    'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+title,'TRIGGER:-P1D','END:VALARM',
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  document.getElementById('apple').onclick=function(ev){
+    ev.preventDefault();
+    location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
+  };
+  document.getElementById('google').href='https://calendar.google.com/calendar/render?action=TEMPLATE'+
+    '&text='+encodeURIComponent(title)+'&dates='+fmt(s)+'/'+fmt(e)+'&ctz=Asia/Tokyo'+
+    '&location='+encodeURIComponent(LOC)+'&details='+encodeURIComponent(desc);
+}else{
+  document.getElementById('owner').hidden=false;
+  var sel=document.getElementById('oMenu');
+  Object.keys(MENUS).forEach(function(k){var o=document.createElement('option');o.textContent=k;sel.appendChild(o);});
+  sel.onchange=function(){document.getElementById('oMin').value=MENUS[sel.value];};
+  var tm=new Date();tm.setDate(tm.getDate()+1);
+  document.getElementById('oDate').value=tm.getFullYear()+'-'+pad(tm.getMonth()+1)+'-'+pad(tm.getDate());
+}
+function make(){
+  var d=document.getElementById('oDate').value,t=document.getElementById('oTime').value,
+      m=document.getElementById('oMenu').value,min=document.getElementById('oMin').value,
+      n=document.getElementById('oName').value.trim();
+  if(!d||!t){alert('日付と時間を入れてください');return;}
+  var url=location.origin+location.pathname+'?d='+d+'&t='+t+'&m='+encodeURIComponent(m)+'&h='+min+'&openExternalBrowser=1';
+  var p=d.split('-'),dt=new Date(+p[0],+p[1]-1,+p[2]);
+  document.getElementById('oOut').value=(n?n+'様\n':'')+'ご予約ありがとうございます。\n'+
+    (+p[1])+'月'+(+p[2])+'日('+W[dt.getDay()]+') '+t+'〜 '+m+'\nで承りました。\n\n下のリンクをタップするとカレンダーに追加できます。\n'+url;
+}
+function copyOut(){
+  var o=document.getElementById('oOut');o.select();
+  (navigator.clipboard?navigator.clipboard.writeText(o.value):Promise.reject()).then(function(){
+    document.getElementById('oMsg').textContent='コピーしました。LINEに貼り付けて送信してください。';
+  },function(){document.execCommand('copy');document.getElementById('oMsg').textContent='コピーしました。';});
+}
+</script>
+</body></html>
