@@ -43,6 +43,7 @@ input,select,textarea{width:100%;box-sizing:border-box;padding:10px;margin-top:6
 
 <script>
 var MENUS={"カット":60,"カットトリートメント":90,"カットカラー":120,"カット香草カラー":120,"カットヘナ":120,"カラー":90,"香草カラー":90,"ヘナ":90,"ハイライト":120,"カットパーマ":150,"カットデジタルパーマ":180,"カットストレートパーマ":150,"カット縮毛矯正":180,"トリートメント":60,"ヘッドスパ":60};
+var ICS_API="";
 var LOC="美容室SOLEIL 神奈川県横浜市西区浜松町8-26 ベルウット";
 var W="日月火水木金土";
 var q=new URLSearchParams(location.search);
@@ -68,8 +69,9 @@ if(q.get('d')&&q.get('t')){
     'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+title,'TRIGGER:-P1D','END:VALARM',
     'END:VEVENT','END:VCALENDAR'].join('\r\n');
   var apl=document.getElementById('apple');
-  apl.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
-  apl.setAttribute('download','soleil.ics');apl.target='_blank';
+  if(ICS_API){apl.href=ICS_API+'?d='+d+'&t='+t+'&m='+encodeURIComponent(m)+'&h='+min;}
+  else{apl.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics);
+  apl.setAttribute('download','soleil.ics');apl.target='_blank';}
   document.getElementById('google').href='https://calendar.google.com/calendar/render?action=TEMPLATE'+
     '&text='+encodeURIComponent(title)+'&dates='+fmt(s)+'/'+fmt(e)+'&ctz=Asia/Tokyo'+
     '&location='+encodeURIComponent(LOC)+'&details='+encodeURIComponent(desc);
