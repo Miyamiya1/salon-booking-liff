@@ -46,6 +46,8 @@ var MENUS={"カット":60,"カットトリートメント":90,"カットカラ�
 var ICS_API="https://script.google.com/macros/s/AKfycbwJ8jWhqyLrsfv-NEDEsTgHn0DZX99vfjm1SQ-BHTbNCWXgdAWPsBtwZGYZw-Zn2b2Iow/exec";
 var LOC="美容室SOLEIL 神奈川県横浜市西区浜松町8-26 ベルウット";
 var W="日月火水木金土";
+// Googleの口コミURL（空ならお願い文は出ません）
+var REVIEW_URL="https://share.google/bIRfiio2XdDpk1dXR";
 var q=new URLSearchParams(location.search);
 function pad(n){return (n<10?'0':'')+n;}
 function utc(dt){return dt.toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';}
@@ -97,7 +99,8 @@ function make(){
   var url=location.origin+location.pathname+'?d='+d+'&t='+t+'&m='+encodeURIComponent(m)+'&h='+min+'&openExternalBrowser=1';
   var p=d.split('-'),dt=new Date(+p[0],+p[1]-1,+p[2]);
   document.getElementById('oOut').value=(n?n+'様\n':'')+'ご予約ありがとうございます。\n'+
-    (+p[1])+'月'+(+p[2])+'日('+W[dt.getDay()]+') '+t+'〜 '+m+'\nで承りました。\n\n下のリンクをタップするとカレンダーに追加できます。\n'+url;
+    (+p[1])+'月'+(+p[2])+'日('+W[dt.getDay()]+') '+t+'〜 '+m+'\nで承りました。\n\n下のリンクをタップするとカレンダーに追加できます。\n'+url+
+    (REVIEW_URL?'\n\nよろしければGoogleの口コミでご感想をお聞かせいただけると嬉しいです。\n'+REVIEW_URL:'');
 }
 function copyOut(){
   var o=document.getElementById('oOut');o.select();
